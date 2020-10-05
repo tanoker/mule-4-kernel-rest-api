@@ -1,0 +1,36 @@
+#%RAML 1.0 ResourceType
+uriParameters:
+  id: string
+get:
+  responses:
+    200: 
+      body:
+        application/json:
+          type: success
+    500:
+      body:
+        application/json:
+          type: failure
+put:
+  body:
+    application/json:
+      type: account
+  responses:
+    200:
+      body:
+        application/json:
+          type: success
+    500:
+      body:
+        application/json:
+          type: failure
+delete:
+  responses:
+    200:
+      body:
+        application/json:
+          type: success
+    500:
+      body:
+        application/json:
+          type: failure

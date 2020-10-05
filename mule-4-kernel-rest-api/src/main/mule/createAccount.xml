@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+
+	<flow name="createAccountFlow"
+		doc:id="80a73c98-893e-41c1-ab7d-14cf413bb398">
+		<db:insert doc:name="Insert Account" doc:id="77ce1702-b72a-481d-8c77-eff1b1b184c6" config-ref="dbConfig">
+			<db:sql ><![CDATA[INSERT INTO account (id, name, email, currency, billingCity, billingCountry, billingStreet, billingZipCode, mobile) VALUES (:id, :name, :email, :currency, :billingCity, :billingCountry, :billingStreet, :billingZipCode, :mobile)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: 1,
+	name: payload.name, 
+	email: payload.email, 
+	currency: payload.currency, 
+	billingCity: payload.billingCity, 
+	billingCountry: payload.billingCountry, 
+	billingStreet: payload.billingStreet, 
+	billingZipCode: payload.billingZipCode, 
+	mobile: payload.mobile
+}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	code: 200,
+	message: "Saved successfully"
+}]' doc:name="Set Payload" doc:id="f71aca2a-e7ca-4bf1-a192-fcb3242c3322" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="9302a0cf-fa80-44a1-9e39-2f29d1e22a6e" >
+				<set-variable value="#[500]" doc:name="Set httpStatus Variable" doc:id="c8e01e52-4854-4e6b-9971-359b3691d238" variableName="httpStatus"/>
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	code: 500,
+	message: "Failed on save to DB"
+}]' doc:name="Set Payload" doc:id="af54a7ff-d08d-4544-9a8d-b14cac281088" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+
+</mule>

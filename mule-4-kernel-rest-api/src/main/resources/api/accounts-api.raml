@@ -1,0 +1,17 @@
+#%RAML 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/4c1b7841-3936-41b5-b9ef-c515e1a91687/ # 
+title: Accounts API
+
+types:
+  account: !include account.raml
+  success: !include success.raml
+  failure: !include failure.raml
+
+resourceTypes:
+  createAccount: !include createAccount.raml
+  manageAccount: !include manageAccount.raml
+
+/account:
+  type: createAccount
+  /{id}:
+    type: manageAccount

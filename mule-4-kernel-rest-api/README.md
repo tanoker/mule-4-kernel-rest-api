@@ -1,0 +1,1 @@
+docker run --name yoursql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 -d mysql:latest

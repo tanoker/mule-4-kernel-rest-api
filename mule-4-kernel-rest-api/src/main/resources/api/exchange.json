@@ -1,0 +1,6 @@
+{
+  "main": "accounts-api.raml",
+  "name": "Accounts API",
+  "classifier": "raml",
+  "tags": []
+}

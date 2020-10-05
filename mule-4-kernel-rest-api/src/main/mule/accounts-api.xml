@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+						http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+						http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+
+	<flow name="accounts-api-main">
+		<http:listener
+			config-ref="accounts-api-httpListenerConfig" path="/api/*">
+			<http:response
+				statusCode="#[vars.httpStatus default 200]">
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:response>
+			<http:error-response
+				statusCode="#[vars.httpStatus default 500]">
+				<http:body>#[payload]</http:body>
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:error-response>
+		</http:listener>
+		<apikit:router config-ref="accounts-api-config" />
+		<error-handler>
+			<on-error-propagate type="APIKIT:BAD_REQUEST">
+				<set-variable value="#[404]"
+					doc:name="Set httpStatus Variable"
+					doc:id="062c63a2-592d-4cb1-9d2c-c93aa89db9f8"
+					variableName="httpStatus" />
+				<set-payload
+					value='#[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]'
+					doc:name="Set Payload"
+					doc:id="8bdb8cdd-d061-4a27-8bc9-460acb5f8652" />
+			</on-error-propagate>
+			<on-error-propagate type="APIKIT:NOT_FOUND">
+				<set-variable value="#[404]"
+					doc:name="Set httpStatus Variable"
+					doc:id="2f8a45b4-4ded-4d91-a715-3fad1fa2b8da"
+					variableName="httpStatus" />
+				<set-payload
+					value='#[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]'
+					doc:name="Set Payload"
+					doc:id="fe9bd2cd-32d1-4baf-a9cb-e19ddb833f7f" />
+			</on-error-propagate>
+			<on-error-propagate
+				type="APIKIT:METHOD_NOT_ALLOWED">
+				<set-variable value="#[405]"
+					doc:name="Set httpStatus Variable"
+					doc:id="d192d123-6742-4708-9322-1ef8b9d5007b"
+					variableName="httpStatus" />
+				<set-payload
+					value='#[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]'
+					doc:name="Set Payload"
+					doc:id="b93b99bc-82c5-40bd-a511-56d4a508d1d8" />
+			</on-error-propagate>
+			<on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+				<set-variable value="#[406]"
+					doc:name="Set httpStatus Variable"
+					doc:id="3b349740-4807-4d3b-a348-a692b3b8bc50"
+					variableName="httpStatus" />
+				<set-payload
+					value='#[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]'
+					doc:name="Set Payload"
+					doc:id="b6398fbe-910a-4bb6-997f-2a7dc55837c0" />
+			</on-error-propagate>
+			<on-error-propagate
+				type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+				<set-variable value="#[415]"
+					doc:name="Set httpStatus Variable"
+					doc:id="c191147b-b08d-4d4d-a278-6030de256908"
+					variableName="httpStatus" />
+				<set-payload
+					value='#[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]'
+					doc:name="Set Payload"
+					doc:id="dd710faa-3030-487c-82ec-51d097a10418" />
+			</on-error-propagate>
+			<on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+				<set-variable value="#[501]"
+					doc:name="Set httpStatus Variable"
+					doc:id="be701ece-ac5d-4cc2-bae2-104386155f32"
+					variableName="httpStatus" />
+				<set-payload
+					value='#[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]'
+					doc:name="Set Payload"
+					doc:id="ab9e0811-4b46-4077-93ea-cd44a9cabaef" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="accounts-api-console">
+		<http:listener
+			config-ref="accounts-api-httpListenerConfig" path="/console/*">
+			<http:response
+				statusCode="#[vars.httpStatus default 200]">
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:response>
+			<http:error-response
+				statusCode="#[vars.httpStatus default 500]">
+				<http:body>#[payload]</http:body>
+				<http:headers>#[vars.outboundHeaders default {}]</http:headers>
+			</http:error-response>
+		</http:listener>
+		<apikit:console config-ref="accounts-api-config" />
+		<error-handler>
+			<on-error-propagate type="APIKIT:NOT_FOUND">
+				<set-variable value="#[404]"
+					doc:name="Set httpStatus Variable"
+					doc:id="9c21454b-f551-4113-b3bc-d0face027bcc"
+					variableName="httpStatus" />
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]' doc:name="Set Payload" doc:id="3bf82951-4f95-493c-a811-ebb974f800ca" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow
+		name="put:\account\(id):application\json:accounts-api-config">
+		<logger level="INFO"
+			message="put:\account\(id):application\json:accounts-api-config" />
+		<set-variable value="#[attributes.uriParams.'id']"
+			doc:name="Set id Variable"
+			doc:id="8163cc17-1240-4950-8b4f-a53cfe72d694" variableName="id" />
+		<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	code: 200,
+	message: "updated"
+}]' doc:name="Set Payload" doc:id="c846183c-2236-478f-9d47-c75d94d7390a" />
+	</flow>
+	<flow name="delete:\account\(id):accounts-api-config">
+		<logger level="INFO"
+			message="delete:\account\(id):accounts-api-config" />
+		<set-variable value="#[attributes.uriParams.'id']"
+			doc:name="Set id Variable"
+			doc:id="a2d0f6f6-da37-442c-a4a6-3f9228296936" variableName="id" />
+		<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	code: 200,
+	message: "removed"
+}]' doc:name="Set Payload" doc:id="80cc720e-98f3-47ad-bf0a-d18b6c03e1fc" />
+	</flow>
+	<flow name="get:\account\(id):accounts-api-config">
+		<logger level="INFO"
+			message="get:\account\(id):accounts-api-config" />
+		<set-variable value="#[attributes.uriParams.'id']"
+			doc:name="Set id Variable"
+			doc:id="53bd3fb5-5353-4597-8651-cc6b92d4b277" variableName="id" />
+		<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	code: 200,
+	message: "added"
+}]' doc:name="Set Payload" doc:id="613225a0-7e50-4d3f-9732-277823e9dd05" />
+	</flow>
+	<flow name="post:\account:application\json:accounts-api-config">
+		<flow-ref doc:name="createAccountFlow" doc:id="d00f1fb8-a87c-4272-a049-e717ea637852" name="createAccountFlow"/>
+		<logger level="INFO" message="post:\account:application\json:accounts-api-config" />
+	</flow>
+</mule>
